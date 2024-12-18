@@ -40,7 +40,7 @@ jobs:
       # View the Docker container logs (see the Spring Boot output)
       - name: View Docker container logs
         run: |
-          docker logs docker.io/library/springboot-app:latest
+          docker logs dazzling_jang
 
       # Optionally, test the application by making an HTTP request
       - name: Test the Spring Boot application
