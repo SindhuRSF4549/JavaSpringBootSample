@@ -26,7 +26,7 @@ jobs:
 
       # Build the Spring Boot app using Maven
       - name: Build Spring Boot App with Maven
-        run: mvn clean install
+        run: mvn -f demo/pom.xml clean install
       # Build the Docker image
       - name: Build Docker image
         run: |
