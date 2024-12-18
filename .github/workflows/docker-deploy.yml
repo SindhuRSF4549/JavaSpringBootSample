@@ -1,72 +1,63 @@
-# This workflow will build docker image and push it to DockerHub,
-# After that, This wrkflow build and push a new container image to Amazon ECR,
-# and then will deploy a new task definition to Amazon ECS, when there is a push to the "main" branch.
-
-name: CI/CD Pipeline  # Name of the CI/CD Pipeline
+name: Spring Boot Docker CI/CD Pipeline (Rancher Desktop)
 
 on:
   push:
-    branches: [ "main" ]  # Trigger on push events to the main branch
+    branches:
+      - main  # Trigger on push to main branch
   pull_request:
-    branches: [ "main" ]  # Trigger on pull requests to the main branch
+    branches:
+      - main  # Trigger on pull request to main branch
 
 jobs:
-  build-and-deploy:
-    runs-on: ubuntu-latest  # Runs on the latest version of Ubuntu | Default operating system environment for workflows unless explicitly specified.
-    
+  build:
+    runs-on: ubuntu-latest  # GitHub-hosted runner
+
     steps:
-    - name: Checkout code  # Step to checkout the code from the repository | Fetch the source code repository into the runner machine where our workflow is executing. 
-      uses: actions/checkout@v4
-      
-    - name: Set up JDK 17 # Step to set up JDK 17
-      uses: actions/setup-java@v3
-      with:
-        java-version: '17'
-        distribution: 'temurin'
-        cache: maven
-        
-    - name: Build with Maven # Step to build the project with Maven
-      run: mvn clean instal
-      
-    - name: Configure AWS credentials
-      uses: aws-actions/configure-aws-credentials@v4
-      with:
-        aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
-        aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-        aws-region: ${{ secrets.AWS_REGION }}
+      # Step 1: Checkout the repository
+      - name: Checkout code
+        uses: actions/checkout@v3
 
-    - name: Login to Amazon ECR
-      id: login-ecr
-      uses: aws-actions/amazon-ecr-login@v2
+      # Step 2: Set up JDK 17 (or whichever version your project uses)
+      - name: Set up JDK 17
+        uses: actions/setup-java@v3
+        with:
+          java-version: '17'
 
-    # Instead of ECR we can also push the image to Dockhub and pull it to ECS.
-    - name: Build, tag, and push image to Amazon ECR
-      id: build-image
-      env:
-        ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
-        IMAGE_TAG: ${{ github.sha }}
-      run: |
-        # Build a docker container and
-        # push it to ECR so that it can
-        # be deployed to ECS.
-        docker build -t $ECR_REGISTRY/${{ secrets.ECR_REPOSITORY }}:$IMAGE_TAG .
-        docker push $ECR_REGISTRY/${{ secrets.ECR_REPOSITORY }}:$IMAGE_TAG
-        echo "image=$ECR_REGISTRY/${{ secrets.ECR_REPOSITORY }}:$IMAGE_TAG" >> $GITHUB_OUTPUT
+      # Step 3: Build Spring Boot application with Maven
+      - name: Build Spring Boot App with Maven
+        run: mvn clean package -DskipTests
 
-    # Updating our ECS task definition file with the newly built Docker image ID 
-    # after successfully building and pushing the Docker image to Amazon ECR. 
-    - name: Update ECS task definition with new image 
-      id: task-def
-      uses: aws-actions/amazon-ecs-render-task-definition@v1
-      with:
-        task-definition: ${{ secrets.ECS_TASK_DEFINITION }}
-        container-name: ${{ secrets.CONTAINER_NAME }}
-        image: ${{ steps.build-image.outputs.image }}
+      # Step 4: Build Docker image for Spring Boot app
+      - name: Build Docker image
+        run: |
+          docker build -t springboot-app:latest .
 
-    - name: Deploy the updated ECS task definition
-      uses: aws-actions/amazon-ecs-deploy-task-definition@v1
-      with:
-        task-definition: ${{ steps.task-def.outputs.task-definition }}
-        service: ${{ secrets.ECS_SERVICE }}
-        cluster: ${{ secrets.ECS_CLUSTER }}
-        wait-for-service-stability: true
+  deploy:
+    runs-on: ubuntu-latest
+    needs: build  # Ensure the build step runs before deploy
+
+    steps:
+      # Step 1: Checkout the repository again
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      # Step 2: Set up Docker (containerd is included in Rancher Desktop)
+      - name: Install Docker
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y docker.io
+
+      # Step 3: Run Docker container locally using Rancher Desktop
+      - name: Run Docker container locally with Rancher Desktop
+        run: |
+          docker run -d -p 8080:8080 springboot-app:latest
+
+      # Step 4: Verify the container is running
+      - name: Verify Docker container is running
+        run: |
+          docker ps
+          
+      # Step 5: Optionally, you can check if the Spring Boot app is accessible
+      - name: Test Spring Boot App Running
+        run: |
+          curl -f http://localhost:8080 || exit 1  # Test if the app is running on localhost:8080
