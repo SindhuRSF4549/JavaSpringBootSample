@@ -17,7 +17,7 @@ public class DemoApplication {
 
     public static void main(String[] args) throws Exception {
     
-		SyncfusionLicenseProvider.registerLicense("GTIlMmhhZH1ifWdraGBifGJhfGpqampzYWBpZmppZmpoJTY9ODoTMTwrNTo/Nn06PQ==");
+		SyncfusionLicenseProvider.registerLicense("GTIlMmhhZH1ifWdraGBifGJhfGpqampzYWBpZmppZmpoJTY9ODoTMTwrNTo/Nn06PQ=");
 
     	try (//Creates an instance of WordDocument Instance (Empty Word Document).
     		WordDocument document = new WordDocument()) {
