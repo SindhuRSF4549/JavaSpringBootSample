@@ -1,4 +1,4 @@
 FROM openjdk:17
 VOLUME /tmp
-ADD target/demo-0.0.1-SNAPSHOT.jar demo.jar
-ENTRYPOINT ["java","-jar","/demo.jar"]
+ADD demo/target/demo-0.0.1-SNAPSHOT.jar demo/target/demo.jar
+ENTRYPOINT ["java","-jar","demo/target/demo.jar"]
