@@ -30,7 +30,7 @@ jobs:
       # Build the Docker image
       - name: Build Docker image
         run: |
-          docker build -t springboot-app:latest .
+          docker build -f demo/Dockerfile -t springboot-app:latest .
 
       # Optionally, run the Docker container locally for testing
       - name: Run Docker container locally
