@@ -32,17 +32,24 @@ jobs:
         run: |
           docker build -f demo/Dockerfile -t springboot-app:latest .
 
-      # Optionally, run the Docker container locally for testing
+      # Run Docker container in detached mode
       - name: Run Docker container locally
         run: |
-          docker run -d -p 8080:8080 springboot-app:latest
+          docker run -d -p 8080:8080 --name springboot-container springboot-app:latest
 
-      # View the Docker container logs (see the Spring Boot output)
-      - name: View Docker container logs
+      # Print logs from the running container
+      - name: Print Docker container logs
         run: |
-          docker logs dazzling_jang
+          echo "Fetching logs from the Docker container..."
+          docker logs springboot-container
 
       # Optionally, test the application by making an HTTP request
       - name: Test the Spring Boot application
         run: |
           curl http://localhost:8080
+
+      # Optionally, stop the container after the test
+      - name: Stop the Docker container
+        run: |
+          docker stop springboot-container
+          docker rm springboot-container
