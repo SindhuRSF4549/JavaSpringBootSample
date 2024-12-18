@@ -34,7 +34,6 @@ public class DemoApplication {
 		}
 		System.out.print("Completed");
 	        System.exit(0);
-		SpringApplication.run(DemoApplication.class, args);
 	}
   //Helper method to read text from ByteArrayOutputStream
   	private static String readTextFromStream(ByteArrayOutputStream byteArrayOutputStream) {
