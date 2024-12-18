@@ -22,7 +22,7 @@ jobs:
         uses: actions/setup-java@v3
         with:
           java-version: '17'
-          distribution: 'oraclejdk'  # Specify Oracle JDK distribution
+          distribution: 'oracle'  # Specify Oracle JDK distribution
 
       # Build the Spring Boot app using Maven
       - name: Build Spring Boot App with Maven
