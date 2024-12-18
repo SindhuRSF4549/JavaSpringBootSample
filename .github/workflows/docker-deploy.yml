@@ -3,10 +3,10 @@ name: Spring Boot Docker CI/CD Pipeline (Rancher Desktop)
 on:
   push:
     branches:
-      - main  # Trigger on push to main branch
+      - main  # Trigger on push to the main branch
   pull_request:
     branches:
-      - main  # Trigger on pull request to main branch
+      - main  # Trigger on pull request to the main branch
 
 jobs:
   build:
@@ -52,12 +52,12 @@ jobs:
         run: |
           docker run -d -p 8080:8080 springboot-app:latest
 
-      # Step 4: Verify the container is running
+      # Step 4: Verify Docker container is running
       - name: Verify Docker container is running
         run: |
           docker ps
-          
-      # Step 5: Optionally, you can check if the Spring Boot app is accessible
+
+      # Step 5: Test if Spring Boot app is accessible
       - name: Test Spring Boot App Running
         run: |
           curl -f http://localhost:8080 || exit 1  # Test if the app is running on localhost:8080
