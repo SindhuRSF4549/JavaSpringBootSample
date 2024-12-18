@@ -36,3 +36,13 @@ jobs:
       - name: Run Docker container locally
         run: |
           docker run -d -p 8080:8080 springboot-app:latest
+
+      # View the Docker container logs (see the Spring Boot output)
+      - name: View Docker container logs
+        run: |
+          docker logs $(docker ps -q -f ancestor=springboot-app:latest)
+
+      # Optionally, test the application by making an HTTP request
+      - name: Test the Spring Boot application
+        run: |
+          curl http://localhost:8080
