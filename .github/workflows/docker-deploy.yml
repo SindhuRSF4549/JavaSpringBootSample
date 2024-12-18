@@ -1,3 +1,13 @@
+name: Build and Deploy Spring Boot with Docker
+
+on:
+  push:
+    branches:
+      - main  # Trigger on push to the main branch
+  pull_request:
+    branches:
+      - main  # Trigger on pull request to the main branch
+
 jobs:
   build:
     runs-on: ubuntu-latest  # GitHub-hosted runner
@@ -7,17 +17,22 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v3
 
-      # Verify contents of the directory (to make sure the pom.xml is present)
-      - name: List project directory
-        run: ls -al
-
       # Set up Oracle JDK 17
       - name: Set up Oracle JDK 17
         uses: actions/setup-java@v3
         with:
           java-version: '17'
-          distribution: 'oraclejdk'
+          distribution: 'oraclejdk'  # Specify Oracle JDK distribution
 
       # Build the Spring Boot app using Maven
       - name: Build Spring Boot App with Maven
-        run: mvn clean package -DskipTests
+        run: mvn clean install
+      # Build the Docker image
+      - name: Build Docker image
+        run: |
+          docker build -t springboot-app:latest .
+
+      # Optionally, run the Docker container locally for testing
+      - name: Run Docker container locally
+        run: |
+          docker run -d -p 8080:8080 springboot-app:latest
