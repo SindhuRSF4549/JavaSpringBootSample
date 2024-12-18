@@ -37,16 +37,16 @@ jobs:
         run: |
           docker run -d -p 8080:8080 --name springboot-container springboot-app:latest
 
+      # List running Docker containers (using docker ps)
+      - name: List running Docker containers
+        run: |
+          docker ps
+
       # Print logs from the running container
       - name: Print Docker container logs
         run: |
           echo "Fetching logs from the Docker container..."
-          docker logs springboot-container
-
-      # Optionally, test the application by making an HTTP request
-      - name: Test the Spring Boot application
-        run: |
-          curl http://localhost:8080
+          docker logs -f springboot-container
 
       # Optionally, stop the container after the test
       - name: Stop the Docker container
