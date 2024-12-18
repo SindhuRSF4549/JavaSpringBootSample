@@ -1,0 +1,66 @@
+name: Spring Boot Docker CI/CD Pipeline (No Docker Credentials)
+
+on:
+  push:
+    branches:
+      - main  # Trigger on push to main branch
+  pull_request:
+    branches:
+      - main  # Trigger on pull request to main branch
+
+jobs:
+  build:
+    runs-on: ubuntu-latest  # GitHub-hosted runner
+
+    steps:
+      # Checkout the repository
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      # Set up JDK 17 (or whichever version your project uses)
+      - name: Set up JDK 17
+        uses: actions/setup-java@v3
+        with:
+          java-version: '17'
+
+      # Build the Spring Boot application
+      - name: Build Spring Boot App with Maven
+        run: mvn clean package -DskipTests
+
+      # Build Docker image
+      - name: Build Docker image
+        run: |
+          docker build -t springboot-app:latest .
+
+      # Optionally, you can test the Docker container locally by running it
+      - name: Run Docker container locally
+        run: |
+          docker run -d -p 8080:8080 springboot-app:latest
+
+  deploy:
+    runs-on: ubuntu-latest
+    needs: build  # Make sure build job runs first
+
+    steps:
+      # Checkout the repository
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      # Docker is already pre-installed on GitHub-hosted runners
+      # No need to install docker.io
+
+      # If you are using Rancher Desktop or Kubernetes locally, the deploy step will not work on GitHub Actions directly.
+      # Therefore, this step would only work if you are working locally, or using Kubernetes/Helm commands for remote deployments
+
+      # For GitHub-hosted runners, you can run the Docker container like this (for testing):
+      - name: Deploy Docker container (test) on GitHub Runner
+        run: |
+          docker run -d -p 8080:8080 springboot-app:latest
+
+      # Optionally, check the running containers on the GitHub-hosted runner
+      - name: Check running Docker containers
+        run: |
+          docker ps
+
+      # Local Rancher Desktop or Kubernetes deployment is not supported in GitHub-hosted runners.
+      # You would need to deploy this container in your local Rancher Desktop manually after this CI step.
